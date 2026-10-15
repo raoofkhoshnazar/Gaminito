@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 
 type Screen =
   | "landing"
@@ -159,6 +159,16 @@ export default function App() {
   const [demoGame, setDemoGame] = useState<string | null>(null);
   const [demoStarted, setDemoStarted] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+
+  const submitWaitlist = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+    const entries = JSON.parse(localStorage.getItem("gaminito-waitlist") || "[]");
+    localStorage.setItem("gaminito-waitlist", JSON.stringify([...entries, { ...data, createdAt: new Date().toISOString() }]));
+    setWaitlistSubmitted(true);
+    event.currentTarget.reset();
+  };
 
   const navigate = (next: Screen) => {
     setScreen(next);
@@ -192,7 +202,7 @@ export default function App() {
             <h1>بازی بساز،<br /><span>آینده‌ات را بازی کن.</span></h1>
             <p>بدون حتی یک خط کدنویسی، بازی خودت را بساز، با هوش مصنوعی یاد بگیر و خلاقیتت را به درآمد تبدیل کن.</p>
             <div className="hero-actions">
-              <Button onClick={() => navigate("auth")}>رایگان شروع کن <Icon name="arrow" /></Button>
+              <Button onClick={() => document.querySelector("#waitlist")?.scrollIntoView({ behavior: "smooth" })}>ورود به لیست انتظار <Icon name="arrow" /></Button>
               <button className="watch-button" onClick={() => navigate("builder")}><span><Icon name="play" size={18} /></span> ببین چطور کار می‌کند</button>
             </div>
             <div className="trust-row">
@@ -233,6 +243,26 @@ export default function App() {
             ))}
           </div>
           <Button onClick={() => navigate("auth")}>ماجراجویی من را شروع کن <Icon name="arrow" /></Button>
+        </section>
+        <section id="waitlist" className="waitlist-section">
+          <div className="waitlist-copy">
+            <span className="small-kicker"><Icon name="spark" size={17} /> شروع زودتر از بقیه</span>
+            <h2>اولین نفری باش که بازی خودش را می‌سازد</h2>
+            <p>در لیست انتظار ثبت‌نام کن تا زمان شروع دوره، خبر تست‌های اولیه و یک جایزهٔ ویژه را دریافت کنی.</p>
+            <div className="waitlist-perks"><span><Icon name="check" size={16} /> دسترسی زودهنگام</span><span><Icon name="check" size={16} /> تخفیف افتتاحیه</span><span><Icon name="check" size={16} /> دعوت به تست اولیه</span></div>
+          </div>
+          <div className="waitlist-card">
+            {waitlistSubmitted ? (
+              <div className="waitlist-success"><span><Icon name="check" size={27} /></span><h3>ثبت شد، ممنون!</h3><p>اطلاعاتت ذخیره شد. وقتی مرحلهٔ بعدی آماده شود، با تو تماس می‌گیریم.</p><button onClick={() => setWaitlistSubmitted(false)}>ثبت اطلاعات فرد دیگر</button></div>
+            ) : (
+              <form onSubmit={submitWaitlist}>
+                <h3>عضویت در لیست انتظار</h3><p>کمتر از یک دقیقه زمان می‌برد.</p>
+                <div className="waitlist-fields"><label><span>نام شما</span><input name="name" required placeholder="مثلاً علی یا مادر علی" /></label><label><span>نقش شما</span><select name="role" required defaultValue=""><option value="" disabled>انتخاب کنید</option><option value="parent">والد</option><option value="teen">نوجوان</option></select></label><label><span>سن نوجوان</span><select name="age" required defaultValue=""><option value="" disabled>انتخاب سن</option>{Array.from({ length: 7 }, (_, index) => <option key={index + 8} value={index + 8}>{index + 8} سال</option>)}</select></label><label><span>شماره موبایل یا ایمیل</span><input name="contact" required placeholder="۰۹۱۲... یا ایمیل" /></label><label className="waitlist-full"><span>چطور با ما آشنا شدی؟</span><select name="source" defaultValue=""><option value="" disabled>انتخاب کنید</option><option value="friend">معرفی دوستان</option><option value="social">شبکه‌های اجتماعی</option><option value="search">جست‌وجوی اینترنتی</option><option value="other">سایر</option></select></label></div>
+                <label className="consent"><input type="checkbox" name="consent" value="yes" required /><span>با ثبت اطلاعات، با تماس دربارهٔ تست اولیه و اخبار Gaminito موافقم.</span></label>
+                <Button>ثبت‌نام در لیست انتظار <Icon name="arrow" /></Button>
+              </form>
+            )}
+          </div>
         </section>
         <section id="games" className="showcase-section">
           <div className="section-heading"><span>ساخته‌شده توسط بازی‌سازهای نوجوان</span><h2>این بازی‌ها از یک ایده کوچک شروع شدند</h2></div>
