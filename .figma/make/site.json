@@ -1,0 +1,11 @@
+{
+  "title": "Gaminito",
+  "description": "Empower young creators aged 8-14 to build games and learn AI without coding, transforming screen time into productive and creative experiences.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
